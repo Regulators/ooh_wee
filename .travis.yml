@@ -16,3 +16,8 @@ after_script:
   - "sudo service zookeeper-server stop"
 
 script: make deps compile test
+
+language: erlang
+
+otp_release:
+- R16B02
