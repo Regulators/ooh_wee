@@ -30,7 +30,9 @@ groups() ->
     [].
 
 all() ->
-    [parallel_lock_grab].
+    [parallel_lock_grab,
+     parallel_locks_grab,
+     parallel_locks_grab_already_locked].
 
 parallel_lock_grab(_Config) ->
     Self = self(),
@@ -42,8 +44,28 @@ parallel_lock_grab(_Config) ->
         end,
     L = length([spawn(AttemptLockGrab) || _ <- lists:seq(1, 10)]),
     Results = receive_n(L),
-    L2 = L-1,
-    {1, L2} = only_one({ok, locked}, {error, already_locked}, Results).
+    {Locked, AlreadyLocked} =
+        lists:partition(fun({ok, _}) ->
+                                true;
+                           ({error, already_locked}) ->
+                                false
+                        end,
+                        Results),
+    1 = length(Locked),
+    9 = length(AlreadyLocked).
+
+parallel_locks_grab(_Config) ->
+    random:seed(now()),
+    Paths = ["/ooh_wee_test" ++ integer_to_list(random:uniform(100000)) ||
+                _ <- lists:seq(1, 10)],
+    {ok, _Pid} = ooh_wee_lock:mlock(Paths).
+
+parallel_locks_grab_already_locked(_Config) ->
+    random:seed(now()),
+    [First| _] = Paths = ["/ooh_wee_test" ++ integer_to_list(random:uniform(100000)) ||
+                _ <- lists:seq(1, 10)],
+    {ok, _} = ooh_wee_lock:lock(First),
+    {error, {mlock_failed, First}} = ooh_wee_lock:mlock(Paths).
 
 receive_n(Count) ->
     receive_n(Count, []).
@@ -55,13 +77,3 @@ receive_n(Count, L) ->
         V ->
             receive_n(Count-1, [V|L])
     end.
-
-only_one(Value, Rest, L) ->
-    only_one(Value, Rest, L, 0, 0).
-
-only_one(_Value, _Rest, [], N, N2) ->
-    {N, N2};
-only_one(Value, Rest, [Value|T], N, N2) ->
-    only_one(Value, Rest, T, N+1, N2);
-only_one(Value, Rest, [Rest|T], N, N2) ->
-    only_one(Value, Rest, T, N, N2+1).
