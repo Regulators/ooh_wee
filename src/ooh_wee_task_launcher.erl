@@ -55,20 +55,18 @@ code_change(_OldVsn, State, _Extra) ->
 
 start_module_for_child(Pid, Task, Mod) ->
     TaskPath = task_path(Task),
-    zk_utils:is_ok_create(ezk:create(Pid, "/ooh_wee/assigned", <<>>)),
-    case ezk:create(Pid, TaskPath, atom_to_binary(Mod, latin1)) of
-        {ok, _} ->
-            spawn(fun() ->
-                          %% This should probably make the connection itself
-                          %% and make an ephemeral node.
-                          %% TODO: Re-read ZK recipes
+    spawn(fun() ->
+                  Servers = application:get_env(ooh_wee, zookeeper_servers, []),
+                  {ok, Pid} = ezk:start_connection(Servers),
+                  zk_utils:is_ok_create(ezk:create(Pid, "/ooh_wee/assigned", <<>>, e)),
+                  case ezk:create(Pid, TaskPath, atom_to_binary(Mod, latin1)) of
+                      {ok, _} ->
                           ModState = Mod:init(Task),
-                          Mod:handle_task(ModState)
-                  end),
-            ok;
-        {error, dir_exists} ->
-            ok
-    end.
+                          Mod:handle_task(ModState);
+                      {error, dir_exists} ->
+                          ok
+                  end
+          end).
 
 task_path(Task) when is_binary(Task) ->
     %% TODO: Make the constituent paths in the supervisor
