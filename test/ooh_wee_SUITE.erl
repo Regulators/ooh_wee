@@ -40,7 +40,7 @@ parallel_lock_grab(_Config) ->
     Path = "/ooh_wee_test" ++ integer_to_list(random:uniform(100000)),
     AttemptLockGrab =
         fun() ->
-                Self ! (catch ooh_wee_lock:lock(Path))
+                Self ! (catch ooh_wee:lock(Path))
         end,
     L = length([spawn(AttemptLockGrab) || _ <- lists:seq(1, 10)]),
     Results = receive_n(L),
@@ -58,14 +58,14 @@ parallel_locks_grab(_Config) ->
     random:seed(now()),
     Paths = ["/ooh_wee_test" ++ integer_to_list(random:uniform(100000)) ||
                 _ <- lists:seq(1, 10)],
-    {ok, _Pid} = ooh_wee_lock:mlock(Paths).
+    {ok, _Pid} = ooh_wee:mlock(Paths).
 
 parallel_locks_grab_already_locked(_Config) ->
     random:seed(now()),
     [First| _] = Paths = ["/ooh_wee_test" ++ integer_to_list(random:uniform(100000)) ||
                 _ <- lists:seq(1, 10)],
-    {ok, _} = ooh_wee_lock:lock(First),
-    {error, {mlock_failed, First}} = ooh_wee_lock:mlock(Paths).
+    {ok, _} = ooh_wee:lock(First),
+    {error, {mlock_failed, First}} = ooh_wee:mlock(Paths).
 
 receive_n(Count) ->
     receive_n(Count, []).

@@ -1,4 +1,4 @@
--module(ooh_wee_lock).
+-module(ooh_wee).
 
 -export([lock/1]).
 -export([unlock/2]).
