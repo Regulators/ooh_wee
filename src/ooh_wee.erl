@@ -46,7 +46,8 @@ lock(Pid, Path) ->
     end.
 
 grab_lock(Pid, Path) when is_pid(Pid) andalso is_list(Path) ->
-    case ezk:create(Pid, Path, <<>>, e) of
+    NodeBin = atom_to_binary(node(), latin1),
+    case ezk:create(Pid, Path, NodeBin, e) of
         {ok, Path} ->
             {ok, locked};
         {error, dir_exists} ->
