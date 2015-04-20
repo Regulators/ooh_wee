@@ -23,5 +23,4 @@ start_link() ->
 %% ===================================================================
 
 init([]) ->
-    {ok, { {one_for_one, 5, 10}, []} }.
-
+    {ok, { {one_for_one, 5, 10}, [?CHILD(ooh_wee_tasks_sup, supervisor)]} }.
