@@ -2,6 +2,7 @@
 
 -export([lock/1]).
 -export([unlock/2]).
+-export([munlock/2]).
 -export([mlock/1]).
 
 mlock(Paths) ->
@@ -53,6 +54,10 @@ grab_lock(Pid, Path) when is_pid(Pid) andalso is_list(Path) ->
         {error, dir_exists} ->
             {error, already_locked}
     end.
+
+munlock(Pid, Paths) when is_pid(Pid) andalso is_list(Paths) ->
+    [{ok, _} = unlock(Pid, Path) || Path <- Paths],
+    {ok, Pid}.
 
 unlock(Pid, Path) when is_pid(Pid) andalso is_list(Path) ->
     case ezk:delete(Pid, Path) of

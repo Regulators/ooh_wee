@@ -32,7 +32,8 @@ groups() ->
 all() ->
     [parallel_lock_grab,
      parallel_locks_grab,
-     parallel_locks_grab_already_locked].
+     parallel_locks_grab_already_locked,
+     munlocks].
 
 parallel_lock_grab(_Config) ->
     Self = self(),
@@ -66,6 +67,14 @@ parallel_locks_grab_already_locked(_Config) ->
                 _ <- lists:seq(1, 10)],
     {ok, _} = ooh_wee:lock(First),
     {error, {mlock_failed, First}} = ooh_wee:mlock(Paths).
+
+munlocks(_Config) ->
+    random:seed(now()),
+    [First| _] = Paths = ["/ooh_wee_test" ++ integer_to_list(random:uniform(100000)) ||
+                _ <- lists:seq(1, 10)],
+    {ok, Pid} = ooh_wee:mlock(Paths),
+    {ok, _} = ooh_wee:munlock(Pid, Paths),
+    {ok, _} = ooh_wee:lock(First).
 
 receive_n(Count) ->
     receive_n(Count, []).
