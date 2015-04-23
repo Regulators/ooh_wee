@@ -1,4 +1,4 @@
--module(ooh_wee_SUITE).
+-module(zootils_SUITE).
 
 -compile(export_all).
 
@@ -38,10 +38,10 @@ all() ->
 parallel_lock_grab(_Config) ->
     Self = self(),
     random:seed(now()),
-    Path = "/ooh_wee_test" ++ integer_to_list(random:uniform(100000)),
+    Path = "/zootils_test" ++ integer_to_list(random:uniform(100000)),
     AttemptLockGrab =
         fun() ->
-                Self ! (catch ooh_wee:lock(Path))
+                Self ! (catch zootils:lock(Path))
         end,
     L = length([spawn(AttemptLockGrab) || _ <- lists:seq(1, 10)]),
     Results = receive_n(L),
@@ -57,24 +57,24 @@ parallel_lock_grab(_Config) ->
 
 parallel_locks_grab(_Config) ->
     random:seed(now()),
-    Paths = ["/ooh_wee_test" ++ integer_to_list(random:uniform(100000)) ||
+    Paths = ["/zootils_test" ++ integer_to_list(random:uniform(100000)) ||
                 _ <- lists:seq(1, 10)],
-    {ok, _Pid} = ooh_wee:mlock(Paths).
+    {ok, _Pid} = zootils:mlock(Paths).
 
 parallel_locks_grab_already_locked(_Config) ->
     random:seed(now()),
-    [First| _] = Paths = ["/ooh_wee_test" ++ integer_to_list(random:uniform(100000)) ||
+    [First| _] = Paths = ["/zootils_test" ++ integer_to_list(random:uniform(100000)) ||
                 _ <- lists:seq(1, 10)],
-    {ok, _} = ooh_wee:lock(First),
-    {error, {mlock_failed, First}} = ooh_wee:mlock(Paths).
+    {ok, _} = zootils:lock(First),
+    {error, {mlock_failed, First}} = zootils:mlock(Paths).
 
 munlocks(_Config) ->
     random:seed(now()),
-    [First| _] = Paths = ["/ooh_wee_test" ++ integer_to_list(random:uniform(100000)) ||
+    [First| _] = Paths = ["/zootils_test" ++ integer_to_list(random:uniform(100000)) ||
                 _ <- lists:seq(1, 10)],
-    {ok, Pid} = ooh_wee:mlock(Paths),
-    {ok, _} = ooh_wee:munlock(Pid, Paths),
-    {ok, _} = ooh_wee:lock(First).
+    {ok, Pid} = zootils:mlock(Paths),
+    {ok, _} = zootils:munlock(Pid, Paths),
+    {ok, _} = zootils:lock(First).
 
 receive_n(Count) ->
     receive_n(Count, []).

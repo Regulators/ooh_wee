@@ -1,4 +1,4 @@
--module(ooh_wee_sup).
+-module(zootils_sup).
 
 -behaviour(supervisor).
 

@@ -1,4 +1,4 @@
--module(ooh_wee_app).
+-module(zootils_app).
 
 -behaviour(application).
 
@@ -10,7 +10,7 @@
 %% ===================================================================
 
 start(_StartType, _StartArgs) ->
-    ooh_wee_sup:start_link().
+    zootils_sup:start_link().
 
 stop(_State) ->
     ok.

@@ -1,4 +1,4 @@
--module(ooh_wee).
+-module(zootils).
 
 -export([lock/1]).
 -export([unlock/2]).
@@ -6,7 +6,7 @@
 -export([mlock/1]).
 
 mlock(Paths) ->
-    Servers = application:get_env(ooh_wee, zookeeper_servers, []),
+    Servers = application:get_env(zootils, zookeeper_servers, []),
     case ezk:start_connection(Servers) of
         {ok, Pid} ->
             mlock(Pid, Paths);
@@ -28,7 +28,7 @@ mlock(Pid, [Path|Rest]) ->
     end.
 
 lock(Path) ->
-    Servers = application:get_env(ooh_wee, zookeeper_servers, []),
+    Servers = application:get_env(zootils, zookeeper_servers, []),
     case ezk:start_connection(Servers) of
         {ok, Pid} ->
             lock(Pid, Path);

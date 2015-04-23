@@ -1,4 +1,4 @@
-{application, ooh_wee,
+{application, zootils,
  [
   {description, ""},
   {vsn, "1"},
@@ -8,6 +8,6 @@
                   stdlib,
                   ezk
                  ]},
-  {mod, { ooh_wee_app, []}},
+  {mod, { zootils_app, []}},
   {env, []}
  ]}.
