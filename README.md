@@ -1,6 +1,6 @@
-# ooh_wee
+# Zootils
 
-[![Build Status](https://travis-ci.org/Regulators/ooh_wee.svg?branch=master)](https://travis-ci.org/Regulators/ooh_wee)
+[![Build Status](https://travis-ci.org/Regulators/zootils.svg?branch=master)](https://travis-ci.org/Regulators/zootils)
 
 Zookeeper Utilities
 
