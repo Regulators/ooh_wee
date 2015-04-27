@@ -21,6 +21,7 @@ end_per_group(_GroupName, _Config) ->
     ok.
 
 init_per_testcase(_TestCase, Config) ->
+    random:seed(now()),
     Config.
 
 end_per_testcase(_TestCase, _Config) ->
@@ -37,7 +38,6 @@ all() ->
 
 parallel_lock_grab(_Config) ->
     Self = self(),
-    random:seed(now()),
     Path = "/zootils_test" ++ integer_to_list(random:uniform(100000)),
     AttemptLockGrab =
         fun() ->
@@ -56,20 +56,17 @@ parallel_lock_grab(_Config) ->
     9 = length(AlreadyLocked).
 
 parallel_locks_grab(_Config) ->
-    random:seed(now()),
     Paths = ["/zootils_test" ++ integer_to_list(random:uniform(100000)) ||
                 _ <- lists:seq(1, 10)],
     {ok, _Pid} = zootils:mlock(Paths).
 
 parallel_locks_grab_already_locked(_Config) ->
-    random:seed(now()),
     [First| _] = Paths = ["/zootils_test" ++ integer_to_list(random:uniform(100000)) ||
                 _ <- lists:seq(1, 10)],
     {ok, _} = zootils:lock(First),
     {error, {mlock_failed, First}} = zootils:mlock(Paths).
 
 munlocks(_Config) ->
-    random:seed(now()),
     [First| _] = Paths = ["/zootils_test" ++ integer_to_list(random:uniform(100000)) ||
                 _ <- lists:seq(1, 10)],
     {ok, Pid} = zootils:mlock(Paths),
