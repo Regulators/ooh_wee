@@ -34,7 +34,8 @@ all() ->
     [parallel_lock_grab,
      parallel_locks_grab,
      parallel_locks_grab_already_locked,
-     munlocks].
+     munlocks,
+     lock_with_non_existent_paths].
 
 parallel_lock_grab(_Config) ->
     Self = self(),
@@ -70,6 +71,13 @@ munlocks(_Config) ->
     [First| _] = Paths = ["/zootils_test" ++ integer_to_list(random:uniform(100000)) ||
                 _ <- lists:seq(1, 10)],
     {ok, Pid} = zootils:mlock(Paths),
+    {ok, _} = zootils:munlock(Pid, Paths),
+    {ok, _} = zootils:lock(First).
+
+lock_with_non_existent_paths(_Config) ->
+    Rand = fun() -> integer_to_list(random:uniform(100000)) end,
+    [First| _] = Paths = ["/zootils_test/" ++ Rand() ++ "/" ++ Rand() || _ <- lists:seq(1, 10)],
+    {ok, Pid} = zootils:mlock(Paths, [{create_full_paths, true}]),
     {ok, _} = zootils:munlock(Pid, Paths),
     {ok, _} = zootils:lock(First).
 
